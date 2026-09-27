@@ -51,9 +51,18 @@ export async function getAllGameIds(db: Database): Promise<number[]> {
 }
 ```
 
+- Every exported function in `db/**/*.ts` and `src/lib/*.ts` must have a concise TSDoc/JSDoc comment describing its purpose, each parameter, and its return value. Include the injectable `db` parameter in the `@param` documentation for data-access helpers.
+- Use `@param` and `@returns` tags for exported functions. Explain meaningful behavior such as ordering, nullability, side effects, or error conditions; do not duplicate the function name or restate its implementation.
+- Keep comments current: update or remove a TSDoc/JSDoc comment in the same change as the code it describes. Treat stale documentation as a correctness issue.
 - Always `order by` a stable column (title) so static builds are deterministic.
 - Map raw rows to the app-facing `Game`/`Publisher`/`Category` types in one place; don't leak Drizzle row shapes into components.
 - Keep ordering/lookup logic in `games.ts`, not in pages.
+
+### Comments and TypeScript style
+
+- Comments should explain why a schema, query, transform, or migration behaves a particular way. Do not comment obvious column declarations or paraphrase SQL that is already readable.
+- Use explicit parameter and return types for exported functions and public helpers.
+- Follow the repository TypeScript style: single quotes, semicolons, trailing commas in multiline constructs, four-space indentation, and interfaces for object contracts. These conventions are checked by ESLint where applicable.
 
 ## Determinism
 
