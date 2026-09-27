@@ -84,3 +84,5 @@ describe('getAllGames', () => {
 - Don't mock the database — an in-memory Node SQLite instance is fast and exercises real SQL/joins.
 - Keep fixtures minimal but representative of relationships (game → publisher, game → category).
 - If a schema change breaks tests, regenerate migrations with `npm run db:generate` and update fixtures.
+- Comment only the intent behind non-obvious test setup or assertions; do not comment straightforward Arrange-Act-Assert steps.
+- Keep test comments and descriptions current when the behavior under test changes.

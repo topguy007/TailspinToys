@@ -93,6 +93,15 @@ npm run typecheck:all    # both of the above
 
 This project ships Copilot customizations to assist with quality assurance:
 
+### Coding standards
+
+The repository's coding standards are documented in the [Copilot instructions](.github/copilot-instructions.md) and the focused [instruction files](.github/instructions/). In particular:
+
+- Comments explain intent and decisions rather than restating code, and stale comments are updated or removed.
+- Exported functions in `db/` and `src/lib/` use TSDoc/JSDoc to document their purpose, parameters, and return values.
+- Reusable Astro components document their `Props` interface and non-obvious prop contracts.
+- TypeScript uses the repository's formatting conventions, with the core rules enforced by ESLint.
+
 ### Database Explorer Canvas
 
 The shared **Database Explorer** canvas (`.github/extensions/database-explorer/`) provides a small UI and agent actions for browsing the project's SQLite tables and running one read-only `SELECT` or `WITH` query at a time. It uses the database at `.data/tailspin.db` (or `DATABASE_URL` when set), so run `npm run db:setup` before opening it in a fresh checkout.

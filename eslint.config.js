@@ -39,5 +39,12 @@ export default [
     languageOptions: {
       parser: tseslint.parser,
     },
+    rules: {
+      "@typescript-eslint/array-type": ["error", { default: "array-simple" }],
+      "@typescript-eslint/consistent-type-definitions": ["error", "interface"],
+      "comma-dangle": ["error", "always-multiline"],
+      "quotes": ["error", "single", { avoidEscape: true }],
+      "semi": ["error", "always"],
+    },
   },
 ];
