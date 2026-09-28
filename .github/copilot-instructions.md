@@ -16,9 +16,10 @@ This is a crowdfunding platform for games with a developer theme. The applicatio
 
 ### Comments and API documentation
 
+- Every source-code file must begin with a concise comment block, before imports or other code, that explains the file's purpose. Use the comment syntax appropriate to the file type.
 - Comments explain **why**: intent, trade-offs, invariants, and non-obvious decisions. Do not add comments that merely restate code.
 - Keep comments current with the behavior they describe; update or remove them in the same change. Stale comments are bugs.
-- Every exported function in `db/**/*.ts` and `src/lib/*.ts` requires TSDoc/JSDoc with its purpose, `@param` entries (including injectable `db` arguments), and an `@returns` description.
+- Every exported function requires a TSDoc/JSDoc comment describing its purpose, each parameter with `@param` entries (including injectable `db` arguments), and its return value with an `@returns` description.
 - Every reusable `.astro` component must define a documented `Props` interface in frontmatter. Document non-obvious prop semantics, defaults, and constraints.
 
 ### Required Before Each Commit
