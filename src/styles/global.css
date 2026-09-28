@@ -1,1 +1,58 @@
+/* Global Tailwind entry point and accessible site-wide contrast overrides. */
 @import "tailwindcss";
+
+html[data-high-contrast='true'] {
+    color-scheme: dark;
+    background-color: #000000;
+}
+
+html[data-high-contrast='true'] body,
+html[data-high-contrast='true'] body * {
+    color: #ffffff !important;
+    background-color: #000000 !important;
+    background-image: none !important;
+    border-color: #ffffff !important;
+    box-shadow: none !important;
+    text-shadow: none !important;
+}
+
+html[data-high-contrast='true'] a,
+html[data-high-contrast='true'] a *,
+html[data-high-contrast='true'] input[type='checkbox'],
+html[data-high-contrast='true'] input[type='radio'] {
+    color: #ffff00 !important;
+    accent-color: #ffff00;
+}
+
+html[data-high-contrast='true'] a:hover,
+html[data-high-contrast='true'] a:focus-visible {
+    text-decoration: underline;
+}
+
+html[data-high-contrast='true'] button:focus-visible,
+html[data-high-contrast='true'] a:focus-visible,
+html[data-high-contrast='true'] input:focus-visible,
+html[data-high-contrast='true'] select:focus-visible,
+html[data-high-contrast='true'] textarea:focus-visible {
+    outline: 3px solid #ffff00 !important;
+    outline-offset: 3px;
+}
+
+html[data-high-contrast='true'] button,
+html[data-high-contrast='true'] input,
+html[data-high-contrast='true'] select,
+html[data-high-contrast='true'] textarea {
+    border: 2px solid #ffffff !important;
+}
+
+html[data-high-contrast='true'] button:hover,
+html[data-high-contrast='true'] button[aria-pressed='true'] {
+    outline: 2px solid #ffff00;
+    outline-offset: 2px;
+}
+
+html[data-high-contrast='true'] svg,
+html[data-high-contrast='true'] svg * {
+    fill: currentColor;
+    stroke: currentColor;
+}

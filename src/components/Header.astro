@@ -1,4 +1,5 @@
 ---
+// Shared site navigation and the browser-persistent high-contrast control.
 import Menu from '../assets/icons/menu.svg';
 ---
 
@@ -18,10 +19,47 @@ import Menu from '../assets/icons/menu.svg';
       </div>
       <div class="text-xl font-bold"><a href="/" class="hover:underline">Tailspin Toys</a></div>
     </div>
+    <button
+      id="contrast-toggle"
+      type="button"
+      class="rounded border border-white bg-white px-3 py-2 text-sm font-semibold text-blue-900 hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-blue-500"
+      aria-pressed="false"
+      data-testid="high-contrast-toggle"
+    >
+      High contrast: Off
+    </button>
   </div>
+  <span id="contrast-status" class="sr-only" role="status" aria-live="polite"></span>
 </header>
 
 <script>
+  const contrastToggle = document.getElementById('contrast-toggle');
+  const contrastStatus = document.getElementById('contrast-status');
+  const contrastEnabled = document.documentElement.dataset.highContrast === 'true';
+
+  if (contrastToggle instanceof HTMLButtonElement) {
+    contrastToggle.setAttribute('aria-pressed', String(contrastEnabled));
+    contrastToggle.textContent = `High contrast: ${contrastEnabled ? 'On' : 'Off'}`;
+
+    contrastToggle.addEventListener('click', () => {
+      const enabled = document.documentElement.dataset.highContrast !== 'true';
+      document.documentElement.dataset.highContrast = String(enabled);
+      contrastToggle.setAttribute('aria-pressed', String(enabled));
+      contrastToggle.textContent = `High contrast: ${enabled ? 'On' : 'Off'}`;
+
+      try {
+        localStorage.setItem('tailspin-high-contrast', String(enabled));
+        if (contrastStatus) {
+          contrastStatus.textContent = `High contrast mode ${enabled ? 'enabled' : 'disabled'}.`;
+        }
+      } catch {
+        if (contrastStatus) {
+          contrastStatus.textContent = `High contrast mode ${enabled ? 'enabled' : 'disabled'}, but this browser could not save your preference.`;
+        }
+      }
+    });
+  }
+
   // Toggle menu visibility when hamburger is clicked
   const menuToggle = document.getElementById('menu-toggle');
   const menu = document.getElementById('menu');

@@ -18,6 +18,8 @@ On the homepage, choose one or more categories and/or a publisher to narrow the 
 
 Game detail pages also show other games in the same category, or explain when there are no related titles yet.
 
+Use the **High contrast** control in the site header to switch to a black-and-white palette with high-visibility links and focus indicators. The preference is saved in your browser and applied across pages on later visits.
+
 ## Using this template
 
 This repository is a GitHub template. When you create a new repository from it, a one-time **Bootstrap template issues** workflow (`.github/workflows/bootstrap-issues.yml`) runs automatically on the first push to `main` and opens a set of starter issues describing suggested first features. Each issue is defined by a Markdown file in `.github/bootstrap-issues/` — the first heading becomes the issue title and the remaining content becomes the body — so you can edit, add, or remove files there to control which issues are created.

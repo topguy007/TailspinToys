@@ -52,3 +52,4 @@ ALL UI components MUST use dark theme colors:
 - Smooth transitions: `transition-all duration-200 ease-in-out`
 - Shadows for depth: `shadow-md`, `shadow-lg`, `shadow-xl`
 - Focus states for accessibility: `focus:ring-2 focus:ring-blue-500`
+- The shared header provides a user-selectable high-contrast mode persisted in local storage; ensure new global UI remains legible when the `data-high-contrast="true"` attribute is set on `<html>`.
