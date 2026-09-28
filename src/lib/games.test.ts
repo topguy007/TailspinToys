@@ -1,3 +1,7 @@
+/**
+ * Exercises catalog data-access helpers against migrated in-memory SQLite databases.
+ */
+
 import { describe, it, expect, beforeEach } from 'vitest';
 import { createTestDatabase } from '../../db/test-helpers';
 import { categories, publishers, games } from '../../db/schema';
@@ -7,6 +11,7 @@ import {
     getAllGameIds,
     getGameById,
     getGamesByFilters,
+    getRelatedGames,
 } from './games';
 
 async function seedGames(db: Database, count: number): Promise<void> {
@@ -165,5 +170,46 @@ describe('games data-access helpers', () => {
     it('returns null for a non-existent game', async () => {
         await seedGames(db, 2);
         expect(await getGameById(db, 99999)).toBeNull();
+    });
+
+    it('returns other games in the same category, excluding the current game', async () => {
+        await seedFilterFixtures(db);
+        const games = await getAllGames(db);
+        const currentGame = games.find((game) => game.title === 'Puzzle Alpha');
+        if (!currentGame) {
+            throw new Error('Expected fixture game "Puzzle Alpha" to exist.');
+        }
+
+        const relatedGames = await getRelatedGames(db, currentGame.id);
+
+        expect(relatedGames.map((game) => game.title)).toEqual(['Puzzle Beta']);
+        expect(relatedGames.some((game) => game.id === currentGame.id)).toBe(false);
+    });
+
+    it('returns an empty array when a game has no other games in its category', async () => {
+        const [category] = await db
+            .insert(categories)
+            .values({ name: 'Solo', description: 'A category with one game' })
+            .returning({ id: categories.id });
+        const [publisher] = await db
+            .insert(publishers)
+            .values({ name: 'Solo Publisher', description: 'A publisher' })
+            .returning({ id: publishers.id });
+        const [game] = await db
+            .insert(games)
+            .values({
+                title: 'Only Game',
+                description: 'The only game in this category',
+                starRating: 4,
+                categoryId: category.id,
+                publisherId: publisher.id,
+            })
+            .returning({ id: games.id });
+
+        expect(await getRelatedGames(db, game.id)).toEqual([]);
+    });
+
+    it('returns an empty array when the requested game does not exist', async () => {
+        expect(await getRelatedGames(db, 99999)).toEqual([]);
     });
 });

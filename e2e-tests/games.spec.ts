@@ -1,6 +1,29 @@
+/**
+ * Verifies game listings, detail navigation, and category-related recommendations.
+ */
+
 import { test, expect, type Response } from '@playwright/test';
 
 test.describe('Game Listing and Navigation', () => {
+  test('should show other games from the current game category', async ({ page }) => {
+    await page.goto('/game/1');
+
+    const currentGameId = await page.getByTestId('game-details').getAttribute('data-game-id');
+    const currentCategory = await page.getByTestId('game-details-category').innerText();
+    if (currentGameId === null) {
+      throw new Error('The game details card must expose its game id.');
+    }
+    const relatedCards = page.getByTestId('related-games-grid').getByTestId('game-card');
+
+    await expect(page.getByRole('heading', { name: 'Related games' })).toBeVisible();
+    await expect(relatedCards).toHaveCount(3);
+    await expect(relatedCards.first().getByTestId('game-category')).toHaveText(currentCategory);
+    expect(await relatedCards.evaluateAll((cards, gameId) =>
+      cards.every((card) => card.getAttribute('data-game-id') !== gameId),
+      currentGameId,
+    )).toBe(true);
+  });
+
   test('should filter games by category and publisher and clear the filters', async ({ page }) => {
     await page.goto('/');
 
