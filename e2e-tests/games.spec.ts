@@ -1,6 +1,62 @@
 import { test, expect, type Response } from '@playwright/test';
 
 test.describe('Game Listing and Navigation', () => {
+  test('should filter games by category and publisher and clear the filters', async ({ page }) => {
+    await page.goto('/');
+
+    const cards = page.getByTestId('game-card');
+    const totalGames = await cards.count();
+    const firstCard = cards.first();
+    const categoryId = await firstCard.getAttribute('data-game-category-id') ?? '';
+    const publisherId = await firstCard.getAttribute('data-game-publisher-id') ?? '';
+    expect(categoryId).not.toBe('');
+    expect(publisherId).not.toBe('');
+
+    await page.getByTestId('publisher-filter').selectOption(publisherId);
+    await expect(firstCard).toBeVisible();
+    expect(await page.locator('[data-testid="game-card"]:visible').evaluateAll(
+      (visibleCards, selectedPublisherId) => visibleCards.every(
+        (card) => card.getAttribute('data-game-publisher-id') === selectedPublisherId,
+      ),
+      publisherId,
+    )).toBe(true);
+
+    const categoryFilter = page.getByTestId(`category-filter-${categoryId}`);
+    await categoryFilter.check();
+    await expect(categoryFilter).toBeChecked();
+    await expect(firstCard).toBeVisible();
+    await expect(page.getByTestId('filter-result-count')).toContainText(`of ${totalGames} games`);
+    expect(await page.locator('[data-testid="game-card"]:visible').evaluateAll(
+      (visibleCards, selectedCategoryId) => visibleCards.every(
+        (card) => card.getAttribute('data-game-category-id') === selectedCategoryId,
+      ),
+      categoryId,
+    )).toBe(true);
+
+    const categoryFilters = page.locator('input[name="category"]');
+    if (await categoryFilters.count() > 1) {
+      const secondCategoryFilter = categoryFilters.nth(1);
+      const secondCategoryId = await secondCategoryFilter.getAttribute('value') ?? '';
+      await secondCategoryFilter.check();
+      await expect(secondCategoryFilter).toBeChecked();
+      expect(await page.locator('[data-testid="game-card"]:visible').evaluateAll(
+        (visibleCards, filters) => visibleCards.every((card) =>
+          filters.categoryIds.includes(card.getAttribute('data-game-category-id') ?? '') &&
+          card.getAttribute('data-game-publisher-id') === filters.publisherId,
+        ),
+        { categoryIds: [categoryId, secondCategoryId], publisherId },
+      )).toBe(true);
+    }
+
+    await page.getByTestId('clear-game-filters').click();
+    await expect(categoryFilter).not.toBeChecked();
+    await expect(page.getByTestId('publisher-filter')).toHaveValue('');
+    await expect(page.getByTestId('filter-result-count')).toHaveText(
+      `Showing ${totalGames} of ${totalGames} games`,
+    );
+    await expect(page.getByTestId('filter-empty-state')).toBeHidden();
+  });
+
   test('should display games with titles on index page', async ({ page }) => {
     await test.step('Navigate to homepage', async () => {
       await page.goto('/');
