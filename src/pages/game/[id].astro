@@ -1,6 +1,8 @@
 ---
+// Game detail page with build-time game data and same-category recommendations.
 import type { GetStaticPaths } from 'astro';
 import Layout from '../../layouts/Layout.astro';
+import GameCard from '../../components/GameCard.astro';
 import StarRating from '../../components/StarRating.astro';
 import Tag from '../../components/Tag.astro';
 import Card from '../../components/Card.astro';
@@ -8,10 +10,15 @@ import Button from '../../components/Button.astro';
 import ArrowLeft from '../../assets/icons/arrow-left.svg';
 import Heart from '../../assets/icons/heart.svg';
 import { getDatabase } from '../../lib/db';
-import { getAllGameIds, getGameById } from '../../lib/games';
+import { getAllGameIds, getGameById, getRelatedGames } from '../../lib/games';
 
 export const prerender = true;
 
+/**
+ * Enumerate the game detail routes from the build-time catalog.
+ *
+ * @returns Static route parameters for every game id.
+ */
 export const getStaticPaths = (async () => {
     const ids = await getAllGameIds(getDatabase());
     return ids.map((id) => ({ params: { id: String(id) } }));
@@ -23,11 +30,13 @@ const game = await getGameById(getDatabase(), Number(id));
 if (!game) {
     return Astro.redirect('/404');
 }
+
+const relatedGames = await getRelatedGames(getDatabase(), game.id);
 ---
 
 <Layout title="Game Details - Tailspin Toys">
   <div class="py-8">
-    <Card class="overflow-hidden" data-testid="game-details">
+    <Card class="overflow-hidden" data-testid="game-details" data-game-id={game.id}>
       <div class="p-6">
         <div class="flex justify-between items-start flex-wrap gap-3">
           <h1 class="text-3xl font-bold text-slate-100 mb-2" data-testid="game-details-title">{game.title}</h1>
@@ -63,6 +72,19 @@ if (!game) {
         </div>
       </div>
     </Card>
+
+    <section class="mt-10" aria-labelledby="related-games-heading" data-testid="related-games">
+      <h2 id="related-games-heading" class="text-2xl font-semibold text-slate-100 mb-5">Related games</h2>
+      {relatedGames.length > 0 ? (
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6" data-testid="related-games-grid">
+          {relatedGames.map((relatedGame) => <GameCard game={relatedGame} />)}
+        </div>
+      ) : (
+        <p class="text-slate-400" data-testid="related-games-empty">
+          There are no other games in this category yet.
+        </p>
+      )}
+    </section>
 
     <div class="mt-8">
       <Button href="/" size="sm">

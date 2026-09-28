@@ -1,4 +1,8 @@
-import { and, eq, asc, inArray, type SQL } from 'drizzle-orm';
+/**
+ * Typed, injectable data-access helpers for catalog game listings and lookups.
+ */
+
+import { and, eq, asc, inArray, ne, type SQL } from 'drizzle-orm';
 import type { Database } from './db';
 import { games, categories, publishers } from '../../db/schema';
 import type { Game } from '../types/game';
@@ -56,7 +60,12 @@ function baseGamesQuery(db: Database) {
         .leftJoin(publishers, eq(games.publisherId, publishers.id));
 }
 
-/** All games ordered by title. */
+/**
+ * Retrieve all games with their category and publisher summaries.
+ *
+ * @param db Injectable database client used to query the catalog.
+ * @returns All games ordered alphabetically by title.
+ */
 export async function getAllGames(db: Database): Promise<Game[]> {
     const rows = await baseGamesQuery(db).orderBy(asc(games.title));
     return rows.map(mapGame);
@@ -88,14 +97,49 @@ export async function getGamesByFilters(db: Database, filters: GameFilters = {})
     return rows.map(mapGame);
 }
 
-/** All game ids ordered by title. */
+/**
+ * Retrieve game ids in the same stable title order used by game listings.
+ *
+ * @param db Injectable database client used to query the catalog.
+ * @returns Game ids ordered alphabetically by title.
+ */
 export async function getAllGameIds(db: Database): Promise<number[]> {
     const rows = await db.select({ id: games.id }).from(games).orderBy(asc(games.title));
     return rows.map((row) => row.id);
 }
 
-/** A single game by id, or null when it does not exist. */
+/**
+ * Retrieve one game with its category and publisher summaries.
+ *
+ * @param db Injectable database client used to query the catalog.
+ * @param id Numeric game id to look up.
+ * @returns The matching game, or `null` when no game has that id.
+ */
 export async function getGameById(db: Database, id: number): Promise<Game | null> {
     const row = await baseGamesQuery(db).where(eq(games.id, id)).get();
     return row ? mapGame(row) : null;
+}
+
+/**
+ * Retrieve other games in the same category as a given game.
+ *
+ * @param db Injectable database client used to query the catalog.
+ * @param gameId Id of the game whose category determines the related results.
+ * @returns Other games in the category ordered alphabetically by title, or an empty array if the game does not exist or has no matches.
+ */
+export async function getRelatedGames(db: Database, gameId: number): Promise<Game[]> {
+    const game = await db
+        .select({ categoryId: games.categoryId })
+        .from(games)
+        .where(eq(games.id, gameId))
+        .get();
+
+    if (!game) {
+        return [];
+    }
+
+    const rows = await baseGamesQuery(db)
+        .where(and(eq(games.categoryId, game.categoryId), ne(games.id, gameId)))
+        .orderBy(asc(games.title));
+    return rows.map(mapGame);
 }

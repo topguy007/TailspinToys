@@ -81,6 +81,9 @@ function distinctSorted(values: string[]): string[] {
  * Games are sorted by title using ordinal (UTF-16 code unit) comparison, with
  * `id` as a tiebreaker for duplicate titles — not locale-aware alphabetical
  * order — so the export is byte-identical across environments.
+ *
+ * @param games Game records to include in the catalog.
+ * @returns A deterministically ordered grounding document.
  */
 export function toCatalogExport(games: Game[]): CatalogExport {
     const entries = games
@@ -97,12 +100,23 @@ export function toCatalogExport(games: Game[]): CatalogExport {
     };
 }
 
-/** Serialize the export with stable formatting and a trailing newline. */
+/**
+ * Serialize a catalog export with stable formatting and a trailing newline.
+ *
+ * @param exported Catalog document to serialize.
+ * @returns Pretty-printed JSON ending in one newline.
+ */
 export function serializeCatalogExport(exported: CatalogExport): string {
     return `${JSON.stringify(exported, null, 2)}\n`;
 }
 
-/** Read the seeded database and write the grounding file to disk. */
+/**
+ * Read all games from the database and write the grounding document to disk.
+ *
+ * @param db Injectable database client used to read the catalog.
+ * @param outputPath Destination path; defaults to `db/catalog.json`.
+ * @returns The catalog document written to disk.
+ */
 export async function writeCatalogExport(db: Database, outputPath: string = CATALOG_EXPORT_PATH): Promise<CatalogExport> {
     const exported = toCatalogExport(await getAllGames(db));
     mkdirSync(dirname(outputPath), { recursive: true });
